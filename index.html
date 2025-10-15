@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Calculator UI -->
+    <div id="calculator-ui" class="container active">
+        <div class="calculator">
+            <div class="display" id="display">0</div>
+            <div class="buttons">
+                <button class="btn btn-clear" onclick="clearDisplay()">C</button>
+                <button class="btn btn-operator" onclick="appendOperator('/')">/</button>
+                <button class="btn btn-operator" onclick="appendOperator('*')">×</button>
+                <button class="btn btn-operator" onclick="deleteChar()">⌫</button>
+                
+                <button class="btn" onclick="appendNumber('7')">7</button>
+                <button class="btn" onclick="appendNumber('8')">8</button>
+                <button class="btn" onclick="appendNumber('9')">9</button>
+                <button class="btn btn-operator" onclick="appendOperator('-')">-</button>
+                
+                <button class="btn" onclick="appendNumber('4')">4</button>
+                <button class="btn" onclick="appendNumber('5')">5</button>
+                <button class="btn" onclick="appendNumber('6')">6</button>
+                <button class="btn btn-operator" onclick="appendOperator('+')">+</button>
+                
+                <button class="btn" onclick="appendNumber('1')">1</button>
+                <button class="btn" onclick="appendNumber('2')">2</button>
+                <button class="btn" onclick="appendNumber('3')">3</button>
+                <button class="btn btn-equals" onclick="calculate()" style="grid-row: span 2;">=</button>
+                
+                <button class="btn" onclick="appendNumber('0')" style="grid-column: span 2;">0</button>
+                <button class="btn" onclick="appendNumber('.')">.</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vault UI -->
+    <div id="vault-ui" class="container">
+        <div class="vault">
+            <div class="vault-header">
+                <h2>🔒 Secure Vault</h2>
+                <button class="btn-close" onclick="lockVault()">Lock</button>
+            </div>
+            
+            <div class="vault-tabs">
+                <button class="tab-btn active" onclick="switchTab('files')">Files</button>
+                <button class="tab-btn" onclick="switchTab('apps')">Apps</button>
+                <button class="tab-btn" onclick="switchTab('settings')">Settings</button>
+            </div>
+
+            <!-- Files Tab -->
+            <div id="files-tab" class="tab-content active">
+                <div class="action-buttons">
+                    <button class="btn-action" onclick="importMultipleFilesHandler()">
+                        <span>📁</span> Import Files
+                    </button>
+                    <button class="btn-action" onclick="showStorageInfo()" style="background: #51cf66;">
+                        <span>💾</span> Storage Info
+                    </button>
+                    <button class="btn-action" onclick="exportAllFiles()" style="background: #ffa94d;">
+                        <span>📤</span> Export All
+                    </button>
+                    <input type="file" id="file-input" multiple style="display: none;" onchange="handleFileSelect(event)">
+                </div>
+                
+                <div class="vault-list" id="file-list">
+                    <p class="empty-message">No hidden files yet</p>
+                </div>
+            </div>
+
+            <!-- Apps Tab -->
+            <div id="apps-tab" class="tab-content">
+                <div class="action-buttons">
+                    <button class="btn-action" onclick="showAppSelector()">
+                        <span>📱</span> Hide App
+                    </button>
+                </div>
+                
+                <div class="vault-list" id="app-list">
+                    <p class="empty-message">No hidden apps yet</p>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settings-tab" class="tab-content">
+                <div class="settings-container">
+                    <h3 style="margin-bottom: 20px; color: #333;">⚙️ Vault Settings</h3>
+                    
+                    <!-- Passcode Settings -->
+                    <div class="settings-section">
+                        <div class="settings-header">
+                            <div>
+                                <h4 style="margin: 0 0 5px 0; color: #667eea;">🔢 Calculator Passcode</h4>
+                                <p style="margin: 0; color: #666; font-size: 0.9em;">Change the code to access your vault</p>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-content">
+                            <div class="passcode-display">
+                                <span style="color: #999;">Current Passcode:</span>
+                                <strong id="current-passcode-display" style="color: #667eea; font-size: 1.2em; margin-left: 10px;">****</strong>
+                                <button class="btn-icon" onclick="togglePasscodeVisibility()" style="margin-left: 10px;">👁️</button>
+                            </div>
+                            
+                            <button class="btn-action" onclick="showChangePasscodeModal()" style="margin-top: 15px;">
+                                <span>🔑</span> Change Passcode
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Account Settings -->
+                    <div class="settings-section">
+                        <div class="settings-header">
+                            <div>
+                                <h4 style="margin: 0 0 5px 0; color: #667eea;">👤 Account Information</h4>
+                                <p style="margin: 0; color: #666; font-size: 0.9em;">Your account details</p>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-content" id="account-info">
+                            <div class="info-row">
+                                <span class="info-label">Name:</span>
+                                <span class="info-value" id="user-name">Loading...</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Email:</span>
+                                <span class="info-value" id="user-email">Loading...</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Provider:</span>
+                                <span class="info-value" id="user-provider">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Security Settings -->
+                    <div class="settings-section">
+                        <div class="settings-header">
+                            <div>
+                                <h4 style="margin: 0 0 5px 0; color: #667eea;">🛡️ Security</h4>
+                                <p style="margin: 0; color: #666; font-size: 0.9em;">Security and privacy options</p>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-content">
+                            <div class="setting-item">
+                                <label class="setting-label">
+                                    <input type="checkbox" id="auto-lock" onchange="toggleAutoLock(this.checked)">
+                                    <span>Auto-lock vault after 5 minutes</span>
+                                </label>
+                            </div>
+                            
+                            <div class="setting-item">
+                                <label class="setting-label">
+                                    <input type="checkbox" id="show-passcode-hint" onchange="togglePasscodeHint(this.checked)">
+                                    <span>Show passcode hint on calculator</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Data Management -->
+                    <div class="settings-section">
+                        <div class="settings-header">
+                            <div>
+                                <h4 style="margin: 0 0 5px 0; color: #667eea;">💾 Data Management</h4>
+                                <p style="margin: 0; color: #666; font-size: 0.9em;">Backup and restore options</p>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-content">
+                            <button class="btn-action" onclick="exportData()" style="background: #51cf66; margin-bottom: 10px;">
+                                <span>📤</span> Export Vault Data
+                            </button>
+                            
+                            <button class="btn-action" onclick="importData()" style="background: #ffa94d; margin-bottom: 10px;">
+                                <span>📥</span> Import Vault Data
+                            </button>
+                            
+                            <button class="btn-action" onclick="clearAllData()" style="background: #ff6b6b;">
+                                <span>🗑️</span> Clear All Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Passcode Modal -->
+    <div id="change-passcode-modal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 20px;">🔑 Change Calculator Passcode</h3>
+            
+            <div class="form-group">
+                <label>Current Passcode</label>
+                <input type="password" id="current-passcode" placeholder="Enter current passcode" maxlength="10" />
+            </div>
+            
+            <div class="form-group">
+                <label>New Passcode</label>
+                <input type="password" id="new-passcode" placeholder="Enter new passcode (numbers only)" maxlength="10" />
+                <small style="color: #666; font-size: 0.85em;">Use 4-10 digits for best security</small>
+            </div>
+            
+            <div class="form-group">
+                <label>Confirm New Passcode</label>
+                <input type="password" id="confirm-passcode" placeholder="Re-enter new passcode" maxlength="10" />
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn-primary" onclick="changePasscode()" style="flex: 1;">
+                    Change Passcode
+                </button>
+                <button class="btn-cancel" onclick="closeChangePasscodeModal()" style="flex: 1;">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Selector Modal -->
+    <div id="app-selector-modal" class="modal">
+        <div class="modal-content">
+            <h3>Select App to Hide</h3>
+            <div id="available-apps" class="app-grid"></div>
+            <button class="btn-cancel" onclick="closeAppSelector()">Cancel</button>
+        </div>
+    </div>
+
+    <script src="calculator.js"></script>
+    <script src="crypto.js"></script>
+    <script src="storage.js"></script>
+    <script src="auth.js"></script>
+    <script src="vault.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
